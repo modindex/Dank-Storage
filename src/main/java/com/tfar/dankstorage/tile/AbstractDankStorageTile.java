@@ -1,6 +1,6 @@
 package com.tfar.dankstorage.tile;
 
-import com.tfar.dankstorage.block.DankStorageBlock;
+import com.tfar.dankstorage.block.DankBlock;
 import com.tfar.dankstorage.inventory.DankHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -16,6 +16,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,8 +26,11 @@ public abstract class AbstractDankStorageTile extends TileEntity implements INam
   public int numPlayersUsing = 0;
   protected String customName;
   public int renderTick = 0;
+  public int mode = 0;
+  public int selectedSlot;
 
   public DankHandler itemHandler;
+  public LazyOptional<IItemHandler> optional = LazyOptional.of(() -> itemHandler).cast();
 
   public AbstractDankStorageTile(TileEntityType<?> tile, int rows, int stacksize) {
     super(tile);
@@ -78,7 +82,7 @@ public abstract class AbstractDankStorageTile extends TileEntity implements INam
   }
 
   public void closeInventory(PlayerEntity player) {
-    if (!player.isSpectator() && this.getBlockState().getBlock() instanceof DankStorageBlock) {
+    if (!player.isSpectator() && this.getBlockState().getBlock() instanceof DankBlock) {
       --this.numPlayersUsing;
       this.world.addBlockEvent(this.pos, this.getBlockState().getBlock(), 1, this.numPlayersUsing);
       this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockState().getBlock());
@@ -89,6 +93,8 @@ public abstract class AbstractDankStorageTile extends TileEntity implements INam
   @Override
   public void read(CompoundNBT compound) {
     super.read(compound);
+    this.mode = compound.getInt("mode");
+    this.selectedSlot = compound.getInt("selectedSlot");
     if (compound.contains("Items")) {
       itemHandler.deserializeNBT(compound.getCompound("Items"));
     }
@@ -97,9 +103,12 @@ public abstract class AbstractDankStorageTile extends TileEntity implements INam
     }
   }
 
+  @Nonnull
   @Override
   public CompoundNBT write(CompoundNBT compound) {
     super.write(compound);
+    compound.putInt("mode",mode);
+    compound.putInt("selectedSlot",selectedSlot);
     compound.put("Items", itemHandler.serializeNBT());
     if (this.hasCustomName()) {
       compound.putString("CustomName", this.customName);
@@ -107,6 +116,7 @@ public abstract class AbstractDankStorageTile extends TileEntity implements INam
     return compound;
   }
 
+  @Nonnull
   @Override
   public CompoundNBT getUpdateTag() {
     return write(new CompoundNBT());
@@ -132,14 +142,10 @@ public abstract class AbstractDankStorageTile extends TileEntity implements INam
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @Nonnull
   @Override
-  public <T> LazyOptional getCapability(@Nonnull Capability<T> capability, @Nullable Direction facing) {
-    return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? LazyOptional.of(() -> itemHandler).cast() : super.getCapability(capability, facing);
-  }
-
-  public DankHandler getHandler() {
-    return itemHandler;
+  public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction facing) {
+    return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? optional.cast() : super.getCapability(capability, facing);
   }
 
   @Override

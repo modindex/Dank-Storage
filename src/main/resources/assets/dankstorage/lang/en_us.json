@@ -15,11 +15,29 @@
   "container.dankstorage.dank_6": "Dank 6",
   "container.dankstorage.dank_7": "Dank 7",
 
-  "dankstorage.pickup.enabled": "AutoPickup Enabled",
-  "dankstorage.pickup.disabled": "AutoPickup Disabled",
-  "dankstorage.void.enabled": "AutoVoid Enabled",
-  "dankstorage.void.disabled": "AutoVoid Disabled",
-  "key.dankstorage.pickup": "Auto Pickup",
-  "key.dankstorage.void": "Auto Void",
-  "key.categories.dankstorage": "Dank Storage Keybinds"
+  "dankstorage.mode.normal": "Normal",
+  "dankstorage.mode.pickup_all": "Pickup All",
+  "dankstorage.mode.filtered_pickup": "Filtered Pickup",
+  "dankstorage.mode.void_pickup": "Void Pickup",
+
+  "key.dankstorage.pickup": "Toggle Mode",
+  "key.dankstorage.construction": "Construction Mode",
+
+  "key.categories.dankstorage": "Dank Storage Keybinds",
+
+  "text.dankstorage.shift": "Press %s for Info",
+  "text.dankstorage.empty": "Empty",
+
+  "text.dankstorage.changemode": "Press %s to change mode",
+  "text.dankstorage.currentmode": "Current Usetype: %s",
+
+  "text.dankstorage.changeusetype": "Press %s to change usetype",
+  "text.dankstorage.currentusetype": "Current Usetype: %s",
+
+  "dankstorage.usetype.bag": "Bag",
+  "dankstorage.usetype.construction": "Construction",
+  "dankstorage.usetype.chest": "Chest",
+
+
+  "text.dankstorage.formatcontaineditems" : "%s %s"
 }

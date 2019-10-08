@@ -9,20 +9,38 @@ public class DankPacketHandler {
   public static SimpleChannel INSTANCE;
 
   public static void registerMessages(String channelName) {
+    int id = 0;
+
     INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(DankStorage.MODID, channelName), () -> "1.0", s -> true, s -> true);
-    INSTANCE.registerMessage(0, MessageDankSlotContents.class,
-            MessageDankSlotContents::encode,
-            MessageDankSlotContents::decode,
-            MessageDankSlotContents::handle);
 
-    INSTANCE.registerMessage(1, MessageToggleAutoPickup.class,
-            MessageToggleAutoPickup::encode,
-            MessageToggleAutoPickup::decode,
-            MessageToggleAutoPickup::handle);
+    INSTANCE.registerMessage(id++, CMessageTogglePickup.class,
+            (message, buffer) -> {},
+            buffer -> new CMessageTogglePickup(),
+            CMessageTogglePickup::handle);
 
-    INSTANCE.registerMessage(2, MessageToggleAutoVoid.class,
-            MessageToggleAutoVoid::encode,
-            MessageToggleAutoVoid::decode,
-            MessageToggleAutoVoid::handle);
+    INSTANCE.registerMessage(id++, CMessageTogglePlacement.class,
+            (message, buffer) -> {},
+            buffer -> new CMessageTogglePlacement(),
+            CMessageTogglePlacement::handle);
+
+    INSTANCE.registerMessage(id++, CMessageChangeSlot.class,
+            CMessageChangeSlot::encode,
+            CMessageChangeSlot::new,
+            CMessageChangeSlot::handle);
+
+    INSTANCE.registerMessage(id++, CMessagePickBlock.class,
+            (cMessagePickBlock, buffer) -> {},
+            buffer -> new CMessagePickBlock(),
+            CMessagePickBlock::handle);
+
+    INSTANCE.registerMessage(id++, CMessageTagMode.class,
+            (message, buffer) -> {},
+            buffer -> new CMessageTagMode(),
+            CMessageTagMode::handle);
+
+    INSTANCE.registerMessage(id++, CMessageSort.class,
+            (message, buffer) -> {},
+            buffer -> new CMessageSort(),
+            CMessageSort::handle);
   }
 }

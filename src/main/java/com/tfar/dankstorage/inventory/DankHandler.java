@@ -3,13 +3,14 @@ package com.tfar.dankstorage.inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Constructor;
+import java.util.stream.IntStream;
 
 public class DankHandler extends ItemStackHandler {
 
@@ -20,7 +21,13 @@ public class DankHandler extends ItemStackHandler {
     this.stacklimit = stacklimit;
   }
 
+  public boolean isEmpty(){
+    return IntStream.range(0, this.getSlots()).allMatch(i -> this.getStackInSlot(i).isEmpty());
+  }
 
+  public void clear(){
+    this.stacks.clear();
+  }
 
   @Override
   public int getSlotLimit(int slot) {
@@ -51,7 +58,7 @@ public class DankHandler extends ItemStackHandler {
       return ItemStack.EMPTY;
 
     int toExtract = Math.min(amount, stacklimit);
-
+    //todo might break mods, but removing this causes a dupe bug
     if (existing.getMaxStackSize() == 1)toExtract = 1;
 
     if (existing.getCount() <= toExtract) {
@@ -68,6 +75,10 @@ public class DankHandler extends ItemStackHandler {
 
       return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
     }
+  }
+
+  public NonNullList<ItemStack> getContents(){
+    return stacks;
   }
 
   @Override
@@ -103,7 +114,7 @@ public class DankHandler extends ItemStackHandler {
           ListNBT stackTagList = itemTags.getList("StackList", Constants.NBT.TAG_COMPOUND);
           for (int j = 0; j < stackTagList.size(); j++) {
             CompoundNBT itemTag = stackTagList.getCompound(j);
-            ItemStack temp = stackFromNBT(itemTag);
+            ItemStack temp = ItemStack.read(itemTag);
             if (!temp.isEmpty()) {
               if (stack.isEmpty()) stack = temp;
               else stack.grow(temp.getCount());
@@ -117,7 +128,7 @@ public class DankHandler extends ItemStackHandler {
             stacks.set(slot, stack);
           }
         } else {
-          ItemStack stack = stackFromNBT(itemTags);
+          ItemStack stack = ItemStack.read(itemTags);
           if (itemTags.contains("ExtendedCount", Constants.NBT.TAG_INT)) {
             stack.setCount(itemTags.getInt("ExtendedCount"));
           }
@@ -144,17 +155,4 @@ public class DankHandler extends ItemStackHandler {
     f /= this.getSlots();
     return MathHelper.floor(f * 14F) + (numStacks > 0 ? 1 : 0);
   }
-
-  public static ItemStack stackFromNBT(CompoundNBT nbt){
-    ItemStack stack;
-    try {
-      Constructor<ItemStack> constructor = ItemStack.class.getDeclaredConstructor(CompoundNBT.class);
-      constructor.setAccessible(true);
-      stack = constructor.newInstance(nbt);
-    } catch (Exception e){
-      throw new RuntimeException(e);
-    }
-    return stack;
-  }
-
 }
